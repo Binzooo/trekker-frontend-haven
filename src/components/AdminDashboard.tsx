@@ -6,6 +6,7 @@ import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { 
   Plus, 
   Edit, 
@@ -481,14 +482,30 @@ const AdminDashboard = () => {
                   <CardHeader>
                     <div className="flex justify-between items-center">
                       <CardTitle className="text-lg">Order #{order.id}</CardTitle>
-                      <Badge 
-                        variant={
-                          order.status === 'completed' ? 'default' : 
-                          order.status === 'pending' ? 'destructive' : 'secondary'
-                        }
-                      >
-                        {order.status}
-                      </Badge>
+                      <div className="flex items-center space-x-2">
+                        <Badge 
+                          variant={
+                            order.status === 'completed' ? 'default' : 
+                            order.status === 'pending' ? 'destructive' : 'secondary'
+                          }
+                        >
+                          {order.status}
+                        </Badge>
+                        <Select
+                          value={order.status}
+                          onValueChange={(newStatus) => handleOrderStatusUpdate(order.id, newStatus)}
+                        >
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="processing">Processing</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>

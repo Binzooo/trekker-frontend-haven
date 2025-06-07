@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ShoppingCart, User, LogIn, UserPlus, ChevronDown } from 'lucide-react';
+import { ShoppingCart, User, LogIn, UserPlus, ChevronDown, Receipt } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
@@ -9,16 +9,21 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
 } from './ui/dropdown-menu';
+import { Avatar, AvatarFallback } from './ui/avatar';
 import LoginModal from './LoginModal';
 import RegisterModal from './RegisterModal';
 import CartDropdown from './CartDropdown';
+import UserTransactions from './UserTransactions';
 
 const Navbar = () => {
   const { user, isLoggedIn, logout } = useAuth();
   const { getTotalItems } = useCart();
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  const [showTransactions, setShowTransactions] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -99,23 +104,45 @@ const Navbar = () => {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )}
-                  <div className="flex items-center space-x-2">
-                    <User className="h-5 w-5 text-gray-600" />
-                    <span className="text-sm text-gray-700">{user?.name}</span>
-                    {user?.role === 'admin' && (
-                      <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                        Admin
-                      </span>
-                    )}
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleLogout}
-                    className="hover:bg-red-50 hover:text-red-600"
-                  >
-                    Logout
-                  </Button>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="flex items-center space-x-2 hover:bg-green-50">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-green-100 text-green-700">
+                            {user?.name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm text-gray-700">{user?.name}</span>
+                        {user?.role === 'admin' && (
+                          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                            Admin
+                          </span>
+                        )}
+                        <ChevronDown className="h-3 w-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56 bg-white" align="end">
+                      {user?.role === 'user' && (
+                        <>
+                          <DropdownMenuItem 
+                            onClick={() => setShowTransactions(true)}
+                            className="cursor-pointer"
+                          >
+                            <Receipt className="h-4 w-4 mr-2" />
+                            Transaction History
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
+                      <DropdownMenuItem 
+                        onClick={handleLogout}
+                        className="cursor-pointer text-red-600 hover:text-red-700"
+                      >
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </>
               )}
             </div>
@@ -139,6 +166,10 @@ const Navbar = () => {
           setShowRegister(false);
           setShowLogin(true);
         }}
+      />
+      <UserTransactions 
+        isOpen={showTransactions}
+        onClose={() => setShowTransactions(false)}
       />
     </>
   );
