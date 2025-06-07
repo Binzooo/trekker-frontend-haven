@@ -93,7 +93,7 @@ const AdminDashboard = () => {
         <Button
           onClick={() => setIsAddingProduct(true)}
           className="bg-green-600 hover:bg-green-700"
-          disabled={isAddingProduct || editingProduct}
+          disabled={isAddingProduct || !!editingProduct}
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Product
@@ -200,7 +200,7 @@ const AdminDashboard = () => {
                   size="sm"
                   variant="outline"
                   onClick={() => startEdit(product)}
-                  disabled={isAddingProduct || editingProduct}
+                  disabled={isAddingProduct || !!editingProduct}
                 >
                   <Edit className="h-3 w-3 mr-1" />
                   Edit
@@ -209,7 +209,7 @@ const AdminDashboard = () => {
                   size="sm"
                   variant="destructive"
                   onClick={() => handleDeleteProduct(product.id)}
-                  disabled={isAddingProduct || editingProduct}
+                  disabled={isAddingProduct || !!editingProduct}
                 >
                   <Trash2 className="h-3 w-3 mr-1" />
                   Delete
