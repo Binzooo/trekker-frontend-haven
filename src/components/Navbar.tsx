@@ -1,19 +1,24 @@
 
 import React, { useState } from 'react';
-import { ShoppingCart, User, LogIn, UserPlus } from 'lucide-react';
+import { ShoppingCart, User, LogIn, UserPlus, ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { Button } from './ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
 import LoginModal from './LoginModal';
 import RegisterModal from './RegisterModal';
-import CartModal from './CartModal';
+import CartDropdown from './CartDropdown';
 
 const Navbar = () => {
   const { user, isLoggedIn, logout } = useAuth();
   const { getTotalItems } = useCart();
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-  const [showCart, setShowCart] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -26,24 +31,24 @@ const Navbar = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-green-800">HikeGear</h1>
+              <Link to="/" className="text-2xl font-bold text-green-800">HikeGear</Link>
             </div>
 
             {/* Navigation Links */}
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
-                <a href="#" className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                <Link to="/" className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                   Home
-                </a>
-                <a href="#" className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                </Link>
+                <Link to="/products" className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                   Products
-                </a>
-                <a href="#" className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                </Link>
+                <Link to="/about" className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                   About
-                </a>
-                <a href="#" className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                </Link>
+                <Link to="/contact" className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                   Contact
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -73,19 +78,26 @@ const Navbar = () => {
               ) : (
                 <>
                   {user?.role === 'user' && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowCart(true)}
-                      className="relative hover:bg-green-50"
-                    >
-                      <ShoppingCart className="h-5 w-5" />
-                      {getTotalItems() > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                          {getTotalItems()}
-                        </span>
-                      )}
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="relative hover:bg-green-50"
+                        >
+                          <ShoppingCart className="h-5 w-5" />
+                          {getTotalItems() > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                              {getTotalItems()}
+                            </span>
+                          )}
+                          <ChevronDown className="h-3 w-3 ml-1" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-80 bg-white">
+                        <CartDropdown />
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
                   <div className="flex items-center space-x-2">
                     <User className="h-5 w-5 text-gray-600" />
@@ -127,10 +139,6 @@ const Navbar = () => {
           setShowRegister(false);
           setShowLogin(true);
         }}
-      />
-      <CartModal 
-        isOpen={showCart} 
-        onClose={() => setShowCart(false)} 
       />
     </>
   );
