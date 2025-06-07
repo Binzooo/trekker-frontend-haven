@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
-import { ShoppingCart, User, LogIn, UserPlus, ChevronDown, Receipt } from 'lucide-react';
+import { ShoppingCart, User, LogIn, UserPlus, ChevronDown, Receipt, Moon, Sun, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { Button } from './ui/button';
 import {
   DropdownMenu,
@@ -21,6 +22,7 @@ import UserTransactions from './UserTransactions';
 const Navbar = () => {
   const { user, isLoggedIn, logout } = useAuth();
   const { getTotalItems } = useCart();
+  const { isDark, toggleTheme } = useTheme();
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showTransactions, setShowTransactions] = useState(false);
@@ -31,41 +33,67 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-40">
+      <nav className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-lg border-b border-border sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <Link to="/" className="text-2xl font-bold text-green-800">HikeGear</Link>
+              <Link to="/" className="text-2xl font-bold text-primary hover:text-primary/80 transition-colors">
+                HikeGear
+              </Link>
             </div>
 
-            {/* Navigation Links */}
+            {/* Navigation Links - Show different links for admin vs regular users */}
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
-                <Link to="/" className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                  Home
-                </Link>
-                <Link to="/products" className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                  Products
-                </Link>
-                <Link to="/about" className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                  About
-                </Link>
-                <Link to="/contact" className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                  Contact
-                </Link>
+                {user?.role === 'admin' ? (
+                  <a 
+                    href="/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Visit Website
+                  </a>
+                ) : (
+                  <>
+                    <Link to="/" className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                      Home
+                    </Link>
+                    <Link to="/products" className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                      Products
+                    </Link>
+                    <Link to="/about" className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                      About
+                    </Link>
+                    <Link to="/contact" className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                      Contact
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
 
             {/* Right side buttons */}
             <div className="flex items-center space-x-4">
+              {/* Dark mode toggle */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleTheme}
+                className="hover:bg-accent"
+              >
+                {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+
               {!isLoggedIn ? (
                 <>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowLogin(true)}
-                    className="hover:bg-green-50"
+                    className="hover:bg-accent"
                   >
                     <LogIn className="h-4 w-4 mr-2" />
                     Login
@@ -74,7 +102,7 @@ const Navbar = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => setShowRegister(true)}
-                    className="border-green-600 text-green-600 hover:bg-green-50"
+                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     <UserPlus className="h-4 w-4 mr-2" />
                     Register
@@ -88,18 +116,18 @@ const Navbar = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="relative hover:bg-green-50"
+                          className="relative hover:bg-accent"
                         >
                           <ShoppingCart className="h-5 w-5" />
                           {getTotalItems() > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-green-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                            <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
                               {getTotalItems()}
                             </span>
                           )}
                           <ChevronDown className="h-3 w-3 ml-1" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-80 bg-white">
+                      <DropdownMenuContent className="w-80 bg-background border border-border">
                         <CartDropdown />
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -107,27 +135,27 @@ const Navbar = () => {
                   
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="flex items-center space-x-2 hover:bg-green-50">
+                      <Button variant="ghost" className="flex items-center space-x-2 hover:bg-accent">
                         <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-green-100 text-green-700">
+                          <AvatarFallback className="bg-primary/10 text-primary">
                             {user?.name.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-sm text-gray-700">{user?.name}</span>
+                        <span className="text-sm text-foreground">{user?.name}</span>
                         {user?.role === 'admin' && (
-                          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                          <span className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs px-2 py-1 rounded-full">
                             Admin
                           </span>
                         )}
                         <ChevronDown className="h-3 w-3" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56 bg-white" align="end">
+                    <DropdownMenuContent className="w-56 bg-background border border-border" align="end">
                       {user?.role === 'user' && (
                         <>
                           <DropdownMenuItem 
                             onClick={() => setShowTransactions(true)}
-                            className="cursor-pointer"
+                            className="cursor-pointer hover:bg-accent"
                           >
                             <Receipt className="h-4 w-4 mr-2" />
                             Transaction History
@@ -137,7 +165,7 @@ const Navbar = () => {
                       )}
                       <DropdownMenuItem 
                         onClick={handleLogout}
-                        className="cursor-pointer text-red-600 hover:text-red-700"
+                        className="cursor-pointer text-destructive hover:text-destructive focus:text-destructive hover:bg-destructive/10"
                       >
                         Logout
                       </DropdownMenuItem>
