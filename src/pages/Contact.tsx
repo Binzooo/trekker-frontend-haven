@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -8,6 +8,27 @@ import { Textarea } from '../components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
 
+interface ContactContent {
+  title: string;
+  subtitle: string;
+  customerService: {
+    title: string;
+    hours: string;
+    phone: string;
+  };
+  email: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+  };
+  storeHours: {
+    [key: string]: string;
+  };
+}
+
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -15,6 +36,36 @@ const Contact = () => {
     subject: '',
     message: ''
   });
+
+  const [content, setContent] = useState<ContactContent>({
+    title: 'Contact Us',
+    subtitle: 'We\'d love to hear from you',
+    customerService: {
+      title: 'Customer Service',
+      hours: 'Available Monday - Friday, 9 AM - 6 PM PST',
+      phone: '1-800-HIKEGEAR'
+    },
+    email: 'support@hikegear.com',
+    address: {
+      street: '123 Mountain View Drive',
+      city: 'Boulder',
+      state: 'CO',
+      zip: '80301',
+      country: 'United States'
+    },
+    storeHours: {
+      'Monday - Friday': '9:00 AM - 8:00 PM',
+      'Saturday': '9:00 AM - 6:00 PM',
+      'Sunday': '11:00 AM - 5:00 PM'
+    }
+  });
+
+  useEffect(() => {
+    const savedContent = localStorage.getItem('contactContent');
+    if (savedContent) {
+      setContent(JSON.parse(savedContent));
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,8 +86,8 @@ const Contact = () => {
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>
-          <p className="text-xl text-gray-600">We'd love to hear from you</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">{content.title}</h1>
+          <p className="text-xl text-gray-600">{content.subtitle}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -108,20 +159,20 @@ const Contact = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h4 className="font-semibold text-gray-900">Customer Service</h4>
-                  <p className="text-gray-600">Available Monday - Friday, 9 AM - 6 PM PST</p>
-                  <p className="text-green-600 font-medium">1-800-HIKEGEAR</p>
+                  <h4 className="font-semibold text-gray-900">{content.customerService.title}</h4>
+                  <p className="text-gray-600">{content.customerService.hours}</p>
+                  <p className="text-green-600 font-medium">{content.customerService.phone}</p>
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900">Email Support</h4>
-                  <p className="text-green-600 font-medium">support@hikegear.com</p>
+                  <p className="text-green-600 font-medium">{content.email}</p>
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900">Address</h4>
                   <p className="text-gray-600">
-                    123 Mountain View Drive<br />
-                    Boulder, CO 80301<br />
-                    United States
+                    {content.address.street}<br />
+                    {content.address.city}, {content.address.state} {content.address.zip}<br />
+                    {content.address.country}
                   </p>
                 </div>
               </CardContent>
@@ -133,18 +184,12 @@ const Contact = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Monday - Friday</span>
-                    <span>9:00 AM - 8:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Saturday</span>
-                    <span>9:00 AM - 6:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Sunday</span>
-                    <span>11:00 AM - 5:00 PM</span>
-                  </div>
+                  {Object.entries(content.storeHours).map(([day, hours]) => (
+                    <div key={day} className="flex justify-between">
+                      <span>{day}</span>
+                      <span>{hours}</span>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>

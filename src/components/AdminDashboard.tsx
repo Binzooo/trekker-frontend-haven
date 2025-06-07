@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -35,6 +34,44 @@ interface Order {
   createdAt: string;
 }
 
+interface AboutContent {
+  title: string;
+  subtitle: string;
+  storyTitle: string;
+  storyContent: string[];
+  missionTitle: string;
+  missionContent: string[];
+  whyChooseTitle: string;
+  features: {
+    title: string;
+    description: string;
+    emoji: string;
+  }[];
+  ctaTitle: string;
+  ctaDescription: string;
+}
+
+interface ContactContent {
+  title: string;
+  subtitle: string;
+  customerService: {
+    title: string;
+    hours: string;
+    phone: string;
+  };
+  email: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+  };
+  storeHours: {
+    [key: string]: string;
+  };
+}
+
 const AdminDashboard = () => {
   const [products, setProducts] = useState(mockProducts);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -49,6 +86,64 @@ const AdminDashboard = () => {
     image: ''
   });
 
+  const [aboutContent, setAboutContent] = useState<AboutContent>({
+    title: 'About HikeGear',
+    subtitle: 'Your trusted partner for outdoor adventures',
+    storyTitle: 'Our Story',
+    storyContent: [
+      'Founded by passionate hikers and outdoor enthusiasts, HikeGear has been serving the adventure community for over a decade. We understand the challenges of the trail because we\'ve been there ourselves.',
+      'From weekend warriors to seasoned mountaineers, we provide the gear that helps you push your limits and explore the great outdoors with confidence.'
+    ],
+    missionTitle: 'Our Mission',
+    missionContent: [
+      'To equip outdoor enthusiasts with premium, reliable gear that enhances their adventures while respecting and preserving the natural environment.',
+      'We carefully curate every product in our collection, ensuring it meets our high standards for quality, durability, and performance.'
+    ],
+    whyChooseTitle: 'Why Choose HikeGear?',
+    features: [
+      {
+        title: 'Expert Knowledge',
+        description: 'Our team consists of experienced hikers who test every product personally.',
+        emoji: '🏔️'
+      },
+      {
+        title: 'Premium Quality',
+        description: 'We partner with trusted brands known for their exceptional craftsmanship.',
+        emoji: '⭐'
+      },
+      {
+        title: 'Sustainable Practices',
+        description: 'We prioritize eco-friendly products and sustainable business practices.',
+        emoji: '🌱'
+      }
+    ],
+    ctaTitle: 'Ready for Your Next Adventure?',
+    ctaDescription: 'Browse our collection and gear up for unforgettable outdoor experiences.'
+  });
+
+  const [contactContent, setContactContent] = useState<ContactContent>({
+    title: 'Contact Us',
+    subtitle: 'We\'d love to hear from you',
+    customerService: {
+      title: 'Customer Service',
+      hours: 'Available Monday - Friday, 9 AM - 6 PM PST',
+      phone: '1-800-HIKEGEAR'
+    },
+    email: 'support@hikegear.com',
+    address: {
+      street: '123 Mountain View Drive',
+      city: 'Boulder',
+      state: 'CO',
+      zip: '80301',
+      country: 'United States'
+    },
+    storeHours: {
+      'Monday - Friday': '9:00 AM - 8:00 PM',
+      'Saturday': '9:00 AM - 6:00 PM',
+      'Sunday': '11:00 AM - 5:00 PM'
+    }
+  });
+
   useEffect(() => {
     // Load orders from localStorage
     const savedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
@@ -58,6 +153,17 @@ const AdminDashboard = () => {
     const savedBankNumber = localStorage.getItem('bankNumber');
     if (savedBankNumber) {
       setBankNumber(savedBankNumber);
+    }
+
+    // Load content
+    const savedAboutContent = localStorage.getItem('aboutContent');
+    if (savedAboutContent) {
+      setAboutContent(JSON.parse(savedAboutContent));
+    }
+
+    const savedContactContent = localStorage.getItem('contactContent');
+    if (savedContactContent) {
+      setContactContent(JSON.parse(savedContactContent));
     }
   }, []);
 
@@ -138,6 +244,16 @@ const AdminDashboard = () => {
     toast.success('Bank number updated successfully!');
   };
 
+  const handleAboutContentUpdate = () => {
+    localStorage.setItem('aboutContent', JSON.stringify(aboutContent));
+    toast.success('About page content updated successfully!');
+  };
+
+  const handleContactContentUpdate = () => {
+    localStorage.setItem('contactContent', JSON.stringify(contactContent));
+    toast.success('Contact page content updated successfully!');
+  };
+
   const getTotalRevenue = () => {
     return orders
       .filter(order => order.status === 'completed')
@@ -206,9 +322,10 @@ const AdminDashboard = () => {
       </div>
 
       <Tabs defaultValue="products" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="products">Products</TabsTrigger>
           <TabsTrigger value="orders">Orders</TabsTrigger>
+          <TabsTrigger value="content">Content</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
@@ -431,6 +548,250 @@ const AdminDashboard = () => {
               ))
             )}
           </div>
+        </TabsContent>
+
+        {/* Content Management Tab */}
+        <TabsContent value="content" className="space-y-6">
+          <h2 className="text-2xl font-bold">Content Management</h2>
+          
+          <Tabs defaultValue="about" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="about">About Page</TabsTrigger>
+              <TabsTrigger value="contact">Contact Page</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="about">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Edit About Page Content</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="aboutTitle">Page Title</Label>
+                      <Input
+                        id="aboutTitle"
+                        value={aboutContent.title}
+                        onChange={(e) => setAboutContent({ ...aboutContent, title: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="aboutSubtitle">Subtitle</Label>
+                      <Input
+                        id="aboutSubtitle"
+                        value={aboutContent.subtitle}
+                        onChange={(e) => setAboutContent({ ...aboutContent, subtitle: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="storyTitle">Story Section Title</Label>
+                    <Input
+                      id="storyTitle"
+                      value={aboutContent.storyTitle}
+                      onChange={(e) => setAboutContent({ ...aboutContent, storyTitle: e.target.value })}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="storyContent1">Story Paragraph 1</Label>
+                    <Textarea
+                      id="storyContent1"
+                      value={aboutContent.storyContent[0]}
+                      onChange={(e) => setAboutContent({ 
+                        ...aboutContent, 
+                        storyContent: [e.target.value, aboutContent.storyContent[1]] 
+                      })}
+                      rows={3}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="storyContent2">Story Paragraph 2</Label>
+                    <Textarea
+                      id="storyContent2"
+                      value={aboutContent.storyContent[1]}
+                      onChange={(e) => setAboutContent({ 
+                        ...aboutContent, 
+                        storyContent: [aboutContent.storyContent[0], e.target.value] 
+                      })}
+                      rows={3}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="missionTitle">Mission Section Title</Label>
+                    <Input
+                      id="missionTitle"
+                      value={aboutContent.missionTitle}
+                      onChange={(e) => setAboutContent({ ...aboutContent, missionTitle: e.target.value })}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="missionContent1">Mission Paragraph 1</Label>
+                    <Textarea
+                      id="missionContent1"
+                      value={aboutContent.missionContent[0]}
+                      onChange={(e) => setAboutContent({ 
+                        ...aboutContent, 
+                        missionContent: [e.target.value, aboutContent.missionContent[1]] 
+                      })}
+                      rows={3}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="missionContent2">Mission Paragraph 2</Label>
+                    <Textarea
+                      id="missionContent2"
+                      value={aboutContent.missionContent[1]}
+                      onChange={(e) => setAboutContent({ 
+                        ...aboutContent, 
+                        missionContent: [aboutContent.missionContent[0], e.target.value] 
+                      })}
+                      rows={3}
+                    />
+                  </div>
+                  
+                  <Button
+                    onClick={handleAboutContentUpdate}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    Save About Page Content
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="contact">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Edit Contact Page Content</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="contactTitle">Page Title</Label>
+                      <Input
+                        id="contactTitle"
+                        value={contactContent.title}
+                        onChange={(e) => setContactContent({ ...contactContent, title: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="contactSubtitle">Subtitle</Label>
+                      <Input
+                        id="contactSubtitle"
+                        value={contactContent.subtitle}
+                        onChange={(e) => setContactContent({ ...contactContent, subtitle: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="customerServiceHours">Customer Service Hours</Label>
+                    <Input
+                      id="customerServiceHours"
+                      value={contactContent.customerService.hours}
+                      onChange={(e) => setContactContent({ 
+                        ...contactContent, 
+                        customerService: { ...contactContent.customerService, hours: e.target.value }
+                      })}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="customerServicePhone">Customer Service Phone</Label>
+                    <Input
+                      id="customerServicePhone"
+                      value={contactContent.customerService.phone}
+                      onChange={(e) => setContactContent({ 
+                        ...contactContent, 
+                        customerService: { ...contactContent.customerService, phone: e.target.value }
+                      })}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="supportEmail">Support Email</Label>
+                    <Input
+                      id="supportEmail"
+                      value={contactContent.email}
+                      onChange={(e) => setContactContent({ ...contactContent, email: e.target.value })}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="addressStreet">Address Street</Label>
+                    <Input
+                      id="addressStreet"
+                      value={contactContent.address.street}
+                      onChange={(e) => setContactContent({ 
+                        ...contactContent, 
+                        address: { ...contactContent.address, street: e.target.value }
+                      })}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <Label htmlFor="addressCity">City</Label>
+                      <Input
+                        id="addressCity"
+                        value={contactContent.address.city}
+                        onChange={(e) => setContactContent({ 
+                          ...contactContent, 
+                          address: { ...contactContent.address, city: e.target.value }
+                        })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="addressState">State</Label>
+                      <Input
+                        id="addressState"
+                        value={contactContent.address.state}
+                        onChange={(e) => setContactContent({ 
+                          ...contactContent, 
+                          address: { ...contactContent.address, state: e.target.value }
+                        })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="addressZip">ZIP Code</Label>
+                      <Input
+                        id="addressZip"
+                        value={contactContent.address.zip}
+                        onChange={(e) => setContactContent({ 
+                          ...contactContent, 
+                          address: { ...contactContent.address, zip: e.target.value }
+                        })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="addressCountry">Country</Label>
+                      <Input
+                        id="addressCountry"
+                        value={contactContent.address.country}
+                        onChange={(e) => setContactContent({ 
+                          ...contactContent, 
+                          address: { ...contactContent.address, country: e.target.value }
+                        })}
+                      />
+                    </div>
+                  </div>
+                  
+                  <Button
+                    onClick={handleContactContentUpdate}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    Save Contact Page Content
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         {/* Settings Tab */}
