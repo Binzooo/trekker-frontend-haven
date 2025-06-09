@@ -2,8 +2,34 @@
 import React from 'react';
 import { Button } from './ui/button';
 import { ArrowRight, Users, MapPin } from 'lucide-react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from './ui/carousel';
 
 const Hero = () => {
+  const heroImages = [
+    {
+      src: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      alt: "Mountain trekking adventure"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1472396961693-142e6e269027?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", 
+      alt: "Forest hiking trail"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      alt: "Waterfall adventure"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      alt: "Mountain valley view"
+    }
+  ];
+
   return (
     <div className="relative bg-gradient-to-br from-orange-50 to-orange-100 dark:from-gray-900 dark:to-gray-800 overflow-hidden">
       <div className="absolute inset-0">
@@ -36,38 +62,48 @@ const Hero = () => {
             </Button>
           </div>
 
-          {/* Right Content - Hero Image Card */}
+          {/* Right Content - Hero Image Carousel */}
           <div className="relative">
             <div className="relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-2xl">
-              <div className="aspect-[4/3] rounded-2xl overflow-hidden relative">
-                <img
-                  src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                  alt="Mountain trekking adventure"
-                  className="w-full h-full object-cover"
-                />
-                
-                {/* Trail Path Overlay */}
-                <div className="absolute inset-0">
-                  <svg className="absolute bottom-4 left-4 w-32 h-16" viewBox="0 0 120 60">
-                    <path 
-                      d="M10 50 Q30 30 50 35 T90 25" 
-                      stroke="white" 
-                      strokeWidth="2" 
-                      strokeDasharray="4,4" 
-                      fill="none"
-                      className="animate-pulse"
-                    />
-                    <circle cx="10" cy="50" r="3" fill="orange" />
-                    <circle cx="90" cy="25" r="3" fill="orange" />
-                  </svg>
-                </div>
+              <Carousel className="w-full">
+                <CarouselContent>
+                  {heroImages.map((image, index) => (
+                    <CarouselItem key={index}>
+                      <div className="aspect-[4/3] rounded-2xl overflow-hidden relative">
+                        <img
+                          src={image.src}
+                          alt={image.alt}
+                          className="w-full h-full object-cover"
+                        />
+                        
+                        {/* Trail Path Overlay */}
+                        <div className="absolute inset-0">
+                          <svg className="absolute bottom-4 left-4 w-32 h-16" viewBox="0 0 120 60">
+                            <path 
+                              d="M10 50 Q30 30 50 35 T90 25" 
+                              stroke="white" 
+                              strokeWidth="2" 
+                              strokeDasharray="4,4" 
+                              fill="none"
+                              className="animate-pulse"
+                            />
+                            <circle cx="10" cy="50" r="3" fill="orange" />
+                            <circle cx="90" cy="25" r="3" fill="orange" />
+                          </svg>
+                        </div>
 
-                {/* Trekking Info Badge */}
-                <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm flex items-center gap-2">
-                  <MapPin className="h-3 w-3" />
-                  <span>Trekking KM</span>
-                </div>
-              </div>
+                        {/* Trekking Info Badge */}
+                        <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                          <MapPin className="h-3 w-3" />
+                          <span>Trekking KM</span>
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-2" />
+                <CarouselNext className="right-2" />
+              </Carousel>
               
               {/* Stats Badge */}
               <div className="absolute -bottom-4 -right-4 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-lg border border-gray-100 dark:border-gray-700">
