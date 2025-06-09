@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { ShoppingCart, User, LogIn, UserPlus, ChevronDown, Receipt, Moon, Sun, ExternalLink } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ShoppingCart, User, LogIn, UserPlus, ChevronDown, Receipt, Moon, Sun, ExternalLink, ArrowLeft } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -23,12 +23,24 @@ const Navbar = () => {
   const { user, isLoggedIn, logout } = useAuth();
   const { getTotalItems } = useCart();
   const { isDark, toggleTheme } = useTheme();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showTransactions, setShowTransactions] = useState(false);
 
+  const isAdminRoute = location.pathname === '/admin';
+
   const handleLogout = () => {
     logout();
+  };
+
+  const handleNavigation = () => {
+    if (isAdminRoute) {
+      navigate('/');
+    } else {
+      navigate('/admin');
+    }
   };
 
   return (
@@ -47,15 +59,23 @@ const Navbar = () => {
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
                 {user?.role === 'admin' ? (
-                  <a 
-                    href="/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
+                  <Button
+                    variant="ghost"
+                    onClick={handleNavigation}
                     className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
                   >
-                    <ExternalLink className="h-4 w-4" />
-                    Visit Website
-                  </a>
+                    {isAdminRoute ? (
+                      <>
+                        <ExternalLink className="h-4 w-4" />
+                        Visit Website
+                      </>
+                    ) : (
+                      <>
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to Admin
+                      </>
+                    )}
+                  </Button>
                 ) : (
                   <>
                     <Link to="/" className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">

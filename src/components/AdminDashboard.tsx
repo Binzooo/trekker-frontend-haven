@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -7,6 +8,7 @@ import { Textarea } from './ui/textarea';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { 
   Plus, 
   Edit, 
@@ -698,15 +700,30 @@ const AdminDashboard = () => {
                               alt="Transfer proof" 
                               className="w-full h-32 object-cover rounded"
                             />
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="mt-2 w-full"
-                              onClick={() => window.open(order.transferFile, '_blank')}
-                            >
-                              <Eye className="h-3 w-3 mr-1" />
-                              View Full Size
-                            </Button>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="mt-2 w-full"
+                                >
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  View Full Size
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+                                <DialogHeader>
+                                  <DialogTitle>Transfer Proof - Order #{order.id}</DialogTitle>
+                                </DialogHeader>
+                                <div className="flex justify-center">
+                                  <img 
+                                    src={order.transferFile} 
+                                    alt="Transfer proof full size" 
+                                    className="max-w-full max-h-[70vh] object-contain rounded-lg"
+                                  />
+                                </div>
+                              </DialogContent>
+                            </Dialog>
                           </div>
                         </div>
                       )}
