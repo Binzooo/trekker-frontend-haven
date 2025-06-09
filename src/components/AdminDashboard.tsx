@@ -17,7 +17,10 @@ import {
   DollarSign,
   Eye,
   Check,
-  X
+  X,
+  Package2,
+  Images,
+  Upload
 } from 'lucide-react';
 import { mockProducts } from '../data/mockData';
 import { Product } from '../types';
@@ -84,8 +87,22 @@ const AdminDashboard = () => {
     price: '',
     category: '',
     description: '',
-    image: ''
+    image: '',
+    stock: ''
   });
+
+  // Hero image management
+  const [heroImages, setHeroImages] = useState([
+    "https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1472396961693-142e6e269027?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", 
+    "https://images.unsplash.com/photo-1433086966358-54859d0ed716?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+  ]);
+  const [newHeroImage, setNewHeroImage] = useState('');
+
+  // Stock management
+  const [editingStock, setEditingStock] = useState<string | null>(null);
+  const [stockValue, setStockValue] = useState('');
 
   const [aboutContent, setAboutContent] = useState<AboutContent>({
     title: 'About HikeGear',
@@ -181,12 +198,13 @@ const AdminDashboard = () => {
       category: newProduct.category,
       description: newProduct.description,
       image: newProduct.image || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-      inStock: true,
-      rating: 4.5
+      inStock: parseInt(newProduct.stock) > 0,
+      rating: 4.5,
+      stock: parseInt(newProduct.stock) || 0
     };
 
     setProducts([...products, product]);
-    setNewProduct({ name: '', price: '', category: '', description: '', image: '' });
+    setNewProduct({ name: '', price: '', category: '', description: '', image: '', stock: '' });
     setIsAddingProduct(false);
     toast.success('Product added successfully!');
   };
@@ -203,7 +221,8 @@ const AdminDashboard = () => {
       price: product.price.toString(),
       category: product.category,
       description: product.description,
-      image: product.image
+      image: product.image,
+      stock: product.stock.toString()
     });
   };
 
@@ -216,19 +235,56 @@ const AdminDashboard = () => {
       price: parseFloat(newProduct.price),
       category: newProduct.category,
       description: newProduct.description,
-      image: newProduct.image
+      image: newProduct.image,
+      stock: parseInt(newProduct.stock) || 0,
+      inStock: parseInt(newProduct.stock) > 0
     };
 
     setProducts(products.map(p => p.id === editingProduct.id ? updatedProduct : p));
     setEditingProduct(null);
-    setNewProduct({ name: '', price: '', category: '', description: '', image: '' });
+    setNewProduct({ name: '', price: '', category: '', description: '', image: '', stock: '' });
     toast.success('Product updated successfully!');
   };
 
   const cancelEdit = () => {
     setEditingProduct(null);
     setIsAddingProduct(false);
-    setNewProduct({ name: '', price: '', category: '', description: '', image: '' });
+    setNewProduct({ name: '', price: '', category: '', description: '', image: '', stock: '' });
+  };
+
+  const handleStockUpdate = (productId: string) => {
+    const stockNum = parseInt(stockValue);
+    if (isNaN(stockNum) || stockNum < 0) {
+      toast.error('Please enter a valid stock number');
+      return;
+    }
+
+    setProducts(products.map(p => 
+      p.id === productId 
+        ? { ...p, stock: stockNum, inStock: stockNum > 0 }
+        : p
+    ));
+    setEditingStock(null);
+    setStockValue('');
+    toast.success('Stock updated successfully!');
+  };
+
+  const handleAddHeroImage = () => {
+    if (!newHeroImage) {
+      toast.error('Please enter an image URL');
+      return;
+    }
+    setHeroImages([...heroImages, newHeroImage]);
+    setNewHeroImage('');
+    localStorage.setItem('heroImages', JSON.stringify([...heroImages, newHeroImage]));
+    toast.success('Hero image added successfully!');
+  };
+
+  const handleDeleteHeroImage = (index: number) => {
+    const updatedImages = heroImages.filter((_, i) => i !== index);
+    setHeroImages(updatedImages);
+    localStorage.setItem('heroImages', JSON.stringify(updatedImages));
+    toast.success('Hero image deleted successfully!');
   };
 
   const handleOrderStatusUpdate = (orderId: string, newStatus: string) => {
@@ -265,19 +321,27 @@ const AdminDashboard = () => {
     return orders.filter(order => order.status === 'pending').length;
   };
 
+  const getLowStockCount = () => {
+    return products.filter(product => product.stock <= 5 && product.stock > 0).length;
+  };
+
+  const getOutOfStockCount = () => {
+    return products.filter(product => product.stock === 0).length;
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
       </div>
 
       {/* Dashboard Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Products</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Products</p>
                 <p className="text-2xl font-bold">{products.length}</p>
               </div>
               <Package className="h-8 w-8 text-blue-600" />
@@ -289,7 +353,7 @@ const AdminDashboard = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Orders</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Orders</p>
                 <p className="text-2xl font-bold">{orders.length}</p>
               </div>
               <ShoppingCart className="h-8 w-8 text-green-600" />
@@ -301,10 +365,22 @@ const AdminDashboard = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Pending Orders</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Orders</p>
                 <p className="text-2xl font-bold">{getPendingOrders()}</p>
               </div>
               <Users className="h-8 w-8 text-orange-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Low Stock</p>
+                <p className="text-2xl font-bold text-yellow-600">{getLowStockCount()}</p>
+              </div>
+              <Package2 className="h-8 w-8 text-yellow-600" />
             </div>
           </CardContent>
         </Card>
@@ -313,7 +389,7 @@ const AdminDashboard = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Revenue</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</p>
                 <p className="text-2xl font-bold">${getTotalRevenue().toFixed(2)}</p>
               </div>
               <DollarSign className="h-8 w-8 text-purple-600" />
@@ -322,10 +398,84 @@ const AdminDashboard = () => {
         </Card>
       </div>
 
+      {/* Stock Overview Cards */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4">Stock Overview</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {products.map((product) => (
+            <Card key={product.id} className={`border-l-4 ${
+              product.stock === 0 ? 'border-red-500' : 
+              product.stock <= 5 ? 'border-yellow-500' : 
+              'border-green-500'
+            }`}>
+              <CardContent className="p-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-sm">{product.name}</h3>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant={
+                        product.stock === 0 ? 'destructive' : 
+                        product.stock <= 5 ? 'secondary' : 
+                        'default'
+                      }>
+                        Stock: {product.stock}
+                      </Badge>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingStock(product.id);
+                      setStockValue(product.stock.toString());
+                    }}
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                </div>
+                
+                {editingStock === product.id && (
+                  <div className="mt-3 space-y-2">
+                    <Input
+                      type="number"
+                      value={stockValue}
+                      onChange={(e) => setStockValue(e.target.value)}
+                      placeholder="Enter stock quantity"
+                      min="0"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleStockUpdate(product.id)}
+                        className="flex-1"
+                      >
+                        Update
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setEditingStock(null);
+                          setStockValue('');
+                        }}
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
       <Tabs defaultValue="products" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="products">Products</TabsTrigger>
           <TabsTrigger value="orders">Orders</TabsTrigger>
+          <TabsTrigger value="hero">Hero Images</TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
@@ -384,6 +534,17 @@ const AdminDashboard = () => {
                     />
                   </div>
                   <div>
+                    <Label htmlFor="stock">Stock Quantity</Label>
+                    <Input
+                      id="stock"
+                      type="number"
+                      value={newProduct.stock}
+                      onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+                      placeholder="0"
+                      min="0"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
                     <Label htmlFor="image">Image URL</Label>
                     <Input
                       id="image"
@@ -433,11 +594,16 @@ const AdminDashboard = () => {
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="font-semibold text-lg">{product.name}</h3>
-                    <Badge variant={product.inStock ? "default" : "destructive"}>
-                      {product.inStock ? 'In Stock' : 'Out of Stock'}
-                    </Badge>
+                    <div className="flex flex-col gap-1">
+                      <Badge variant={product.inStock ? "default" : "destructive"}>
+                        {product.inStock ? 'In Stock' : 'Out of Stock'}
+                      </Badge>
+                      <Badge variant="outline">
+                        Stock: {product.stock}
+                      </Badge>
+                    </div>
                   </div>
-                  <p className="text-gray-600 text-sm mb-2">{product.description}</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">{product.description}</p>
                   <p className="text-xl font-bold text-green-600 mb-4">${product.price}</p>
                   <div className="flex space-x-2">
                     <Button
@@ -473,7 +639,7 @@ const AdminDashboard = () => {
             {orders.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">
-                  <p className="text-gray-500">No orders found.</p>
+                  <p className="text-gray-500 dark:text-gray-400">No orders found.</p>
                 </CardContent>
               </Card>
             ) : (
@@ -509,23 +675,41 @@ const AdminDashboard = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
                         <h4 className="font-semibold mb-2">Order Details</h4>
-                        <p className="text-sm text-gray-600">Date: {new Date(order.createdAt).toLocaleDateString()}</p>
-                        <p className="text-sm text-gray-600">Total: ${order.total.toFixed(2)}</p>
-                        <p className="text-sm text-gray-600">Payment: {order.paymentMethod}</p>
-                        {order.transferFile && (
-                          <p className="text-sm text-gray-600">Receipt: {order.transferFile}</p>
-                        )}
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Date: {new Date(order.createdAt).toLocaleDateString()}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Total: ${order.total.toFixed(2)}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Payment: {order.paymentMethod}</p>
                       </div>
                       <div>
                         <h4 className="font-semibold mb-2">Shipping Info</h4>
-                        <p className="text-sm text-gray-600">{order.shippingInfo.fullName}</p>
-                        <p className="text-sm text-gray-600">{order.shippingInfo.address}</p>
-                        <p className="text-sm text-gray-600">{order.shippingInfo.city}, {order.shippingInfo.zipCode}</p>
-                        <p className="text-sm text-gray-600">{order.shippingInfo.phone}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{order.shippingInfo.fullName}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{order.shippingInfo.address}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{order.shippingInfo.city}, {order.shippingInfo.zipCode}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{order.shippingInfo.phone}</p>
                       </div>
+                      {order.transferFile && (
+                        <div>
+                          <h4 className="font-semibold mb-2">Transfer Proof</h4>
+                          <div className="border rounded-lg p-2">
+                            <img 
+                              src={order.transferFile} 
+                              alt="Transfer proof" 
+                              className="w-full h-32 object-cover rounded"
+                            />
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="mt-2 w-full"
+                              onClick={() => window.open(order.transferFile, '_blank')}
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              View Full Size
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                     
                     <div className="mt-4">
@@ -564,6 +748,60 @@ const AdminDashboard = () => {
                 </Card>
               ))
             )}
+          </div>
+        </TabsContent>
+
+        {/* Hero Images Tab */}
+        <TabsContent value="hero" className="space-y-6">
+          <h2 className="text-2xl font-bold">Hero Image Management</h2>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Add New Hero Image</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="heroImage">Image URL</Label>
+                <Input
+                  id="heroImage"
+                  value={newHeroImage}
+                  onChange={(e) => setNewHeroImage(e.target.value)}
+                  placeholder="https://example.com/hero-image.jpg"
+                />
+              </div>
+              <Button
+                onClick={handleAddHeroImage}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Hero Image
+              </Button>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {heroImages.map((image, index) => (
+              <Card key={index} className="overflow-hidden">
+                <img
+                  src={image}
+                  alt={`Hero image ${index + 1}`}
+                  className="w-full h-48 object-cover"
+                />
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Image {index + 1}</span>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDeleteHeroImage(index)}
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </TabsContent>
 

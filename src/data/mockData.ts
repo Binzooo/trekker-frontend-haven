@@ -10,7 +10,8 @@ export const mockProducts: Product[] = [
     category: 'Backpacks',
     description: 'Durable 50L backpack perfect for multi-day hiking adventures.',
     inStock: true,
-    rating: 4.8
+    rating: 4.8,
+    stock: 25
   },
   {
     id: '2',
@@ -20,7 +21,8 @@ export const mockProducts: Product[] = [
     category: 'Footwear',
     description: 'Waterproof hiking boots with superior grip and comfort.',
     inStock: true,
-    rating: 4.6
+    rating: 4.6,
+    stock: 18
   },
   {
     id: '3',
@@ -30,7 +32,8 @@ export const mockProducts: Product[] = [
     category: 'Accessories',
     description: 'Lightweight carbon fiber trekking poles for stability and support.',
     inStock: true,
-    rating: 4.7
+    rating: 4.7,
+    stock: 32
   },
   {
     id: '4',
@@ -40,7 +43,8 @@ export const mockProducts: Product[] = [
     category: 'Camping',
     description: 'Ultra-warm sleeping bag rated for temperatures down to -10°C.',
     inStock: false,
-    rating: 4.9
+    rating: 4.9,
+    stock: 0
   },
   {
     id: '5',
@@ -50,7 +54,8 @@ export const mockProducts: Product[] = [
     category: 'Clothing',
     description: 'Breathable waterproof jacket for all-weather protection.',
     inStock: true,
-    rating: 4.5
+    rating: 4.5,
+    stock: 12
   },
   {
     id: '6',
@@ -60,7 +65,8 @@ export const mockProducts: Product[] = [
     category: 'Camping',
     description: '4-season expedition tent for extreme weather conditions.',
     inStock: true,
-    rating: 4.8
+    rating: 4.8,
+    stock: 8
   }
 ];
 
