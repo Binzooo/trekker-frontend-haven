@@ -71,8 +71,8 @@ const Navbar = () => {
                       </>
                     ) : (
                       <>
-                        <ArrowLeft className="h-4 w-4" />
-                        Back to Admin
+                        <ExternalLink className="h-4 w-4" />
+                        Visit Website
                       </>
                     )}
                   </Button>
